@@ -89,7 +89,7 @@ using array = std::vector<node>;
 , `bool`, or a map, or an array recursively. Essentially it works just like 
 a JSON object.
 
-For more information on using variants see the boost [documentation](boost.org/doc/libs/1_58_0/doc/html/variant.html).
+For more information on using variants see the boost [documentation](http://boost.org/doc/libs/1_58_0/doc/html/variant.html).
 
 ## Requirements
 
