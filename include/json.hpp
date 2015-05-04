@@ -79,17 +79,21 @@ struct json_visitor: boost::static_visitor<std::string> {
   std::string operator()(const json::map& value) const {
     std::string out;
     bool comma = false;
-    for(auto& item: value)
-      out += (comma++ ? ", \"" : "\"") + escape(item.first) + "\": " +
+    for(auto& item: value) {
+      out += (comma ? ", \"" : "\"") + escape(item.first) + "\": " +
              boost::apply_visitor(json_visitor(), item.second);
+      comma = true;
+    }
     return "{" + out + "}";
   }
 
   std::string operator()(const json::array& value) const {
     std::string out;
     bool comma = false;
-    for(auto& item: value)
-      out += (comma++ ? ", " : "") + boost::apply_visitor(json_visitor(), item);
+    for(auto& item: value) {
+      out += (comma ? ", " : "") + boost::apply_visitor(json_visitor(), item);
+      comma = true;
+    }
     return "[" + out + "]";
   }
 };
