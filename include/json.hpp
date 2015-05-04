@@ -18,12 +18,12 @@ using node = boost::make_recursive_variant<
 using map = std::map<const std::string, node>;
 using array = std::vector<node>;
 
-template<class Iterator>
-struct json_grammar: qi::grammar<Iterator, node(), ascii::space_type> {
+template<class Iterator, class Node, class Map, class Array>
+struct json_grammar: qi::grammar<Iterator, Node(), ascii::space_type> {
   struct esc_parser: qi::symbols<char,char> {
     esc_parser() {
-      add("\\\\",'\\')
-          ("\\\"",'"' );
+      add("\\\\" , '\\') ("\\\"" , '"' ) ("\\n"  , '\n') ("\\r"  , '\r')
+         ("\\b"  , '\b') ("\\f"  , '\f') ("\\t"  , '\t');
     }
   } escaped;
 
@@ -40,9 +40,9 @@ struct json_grammar: qi::grammar<Iterator, node(), ascii::space_type> {
     array_rule  = '[' >> -(value_rule % ',') >> ']';
   }
 
-  qi::rule<Iterator, node(),        ascii::space_type> value_rule;
-  qi::rule<Iterator, map(),         ascii::space_type> object_rule;
-  qi::rule<Iterator, array(),       ascii::space_type> array_rule;
+  qi::rule<Iterator, Node(),        ascii::space_type> value_rule;
+  qi::rule<Iterator, Map(),         ascii::space_type> object_rule;
+  qi::rule<Iterator, Array(),       ascii::space_type> array_rule;
   qi::rule<Iterator, std::string(), ascii::space_type> string_rule;
 };
 
@@ -94,12 +94,13 @@ struct json_visitor: boost::static_visitor<std::string> {
   }
 };
 
-node parse(const std::string& str) {
-  node out;
-  json_grammar<std::string::const_iterator> json;
+template<class Node = node, class Map = map, class Array = array>
+Node parse(const std::string& str) {
+  Node out;
+  json_grammar<std::string::const_iterator, Node, Map, Array> json;
   auto first = str.begin(), last = str.end();
   bool ret = qi::phrase_parse(first, last, json, ascii::space, out);
-  return (!ret || first != last) ? node() : out;
+  return (!ret || first != last) ? Node() : out;
 }
 
 std::string stringify(const node& node) {
