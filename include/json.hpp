@@ -103,7 +103,8 @@ Node parse(const std::string& str) {
   return (!ret || first != last) ? Node() : out;
 }
 
-std::string stringify(const node& node) {
+template<class Node = node>
+std::string stringify(const Node& node) {
   return boost::apply_visitor(json_visitor(), node);
 }
 

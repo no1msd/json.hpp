@@ -47,6 +47,12 @@ Mark
 Scott
 ```
 
+You could also use your own compatible data type for storing the result:
+
+```c++
+auto data = json::parse<mstch::node, mstch::map, mstch::array>(json_string);
+```
+
 Serializing to JSON:
 
 ```c++
@@ -73,6 +79,12 @@ Output:
 
 ```javascript
 {"names": [{"name": "Chris"}, {"name": "Mark"}, {"name": "Scott"}]}
+```
+
+Using your own data type:
+
+```c++
+auto json_string = json::stringify<mstch::node>(data);
 ```
 
 ### Data structure
