@@ -10,7 +10,7 @@ a [{{mustache}}](http://mustache.github.io/) template library.
 
 The world doesn't really need another JSON parser, and I'm sure there are others
 who used Spirit for parsing JSON. My main goal was simply to try out Spirit in
-a real use case, and to be able to parse JSON to a ```boost::variant``` as easily as
+a real use case, and to be able to parse JSON to a `boost::variant` as easily as
 possible.
 
 ## Usage
@@ -84,7 +84,7 @@ Output:
 Using your own data type:
 
 ```c++
-auto json_string = json::stringify<mstch::node>(data);
+auto json_string = json::stringify<mstch::node, mstch::map, mstch::array>(data);
 ```
 
 ### Data structure
