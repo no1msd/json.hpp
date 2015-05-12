@@ -12,6 +12,7 @@ TEST_CASE("JSON") {
       "  \"lastName\": \"Smith\",\n"
       "  \"isAlive\": true,\n"
       "  \"age\": 25,\n"
+      "  \"double\": 42.42,\n"
       "  \"address\": {\n"
       "    \"streetAddress\": \"21 2nd Street\",\n"
       "    \"city\": \"New York\",\n"
@@ -38,6 +39,7 @@ TEST_CASE("JSON") {
   REQUIRE(get<std::string>(get<json::map>(data)["firstName"]) == "John");
   REQUIRE(get<bool>(get<json::map>(data)["isAlive"]) == true);
   REQUIRE(get<double>(get<json::map>(data)["age"]) == 25);
+  REQUIRE(get<double>(get<json::map>(data)["double"]) == 42.42);
   REQUIRE(get<std::string>(get<json::map>(get<json::map>(data)["address"])["city"]) == "New York");
   REQUIRE(get<json::array>(get<json::map>(data)["phoneNumbers"]).size() == 2);
 
@@ -46,6 +48,7 @@ TEST_CASE("JSON") {
   REQUIRE(get<std::string>(get<json::map>(data2)["firstName"]) == "John");
   REQUIRE(get<bool>(get<json::map>(data2)["isAlive"]) == true);
   REQUIRE(get<double>(get<json::map>(data2)["age"]) == 25);
+  REQUIRE(get<double>(get<json::map>(data2)["double"]) == 42.42);
   REQUIRE(get<std::string>(get<json::map>(get<json::map>(data2)["address"])["city"]) == "New York");
   REQUIRE(get<json::array>(get<json::map>(data2)["phoneNumbers"]).size() == 2);
 

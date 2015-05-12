@@ -3,7 +3,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
-#include <map>
+#include <boost/lexical_cast.hpp>
 
 namespace json {
 
@@ -33,9 +33,8 @@ struct json_grammar: sp::qi::grammar<Iterator, Node(), sp::ascii::space_type> {
   json_grammar(): json_grammar::base_type(value_rule) {
     value_rule %= string_rule | sp::qi::double_ | object_rule | array_rule |
                   sp::qi::lit("true" )[sp::_val = true ] |
-                  sp::qi::lit("false")[sp::_val = false] |
-                  "null";
-    string_rule = sp::lexeme['"' >> *(escaped | (sp::qi::char_ - '"')) >> '"'];
+                  sp::qi::lit("false")[sp::_val = false] | "null";
+    string_rule = sp::lexeme['"' >> *(escaped | sp::qi::char_ - '"') >> '"'];
     object_rule = '{' >> -((string_rule >> ':' >> value_rule) % ',') >> '}';
     array_rule  = '[' >> -(value_rule % ',') >> ']';
   }
@@ -57,42 +56,38 @@ std::string render_map_item(const typename Map::value_type& i) {
   return escape_str(i.first) + ":" + stringify<Node, Map, Array>(i.second);
 }
 
+template<class Container, class Transformer>
+std::string trans_join(const Container& container, Transformer transformer) {
+  std::vector<std::string> out(container.size());
+  std::transform(container.begin(), container.end(), out.begin(), transformer);
+  return boost::algorithm::join(out, ",");
+}
+
 template<class Node, class Map, class Array>
 struct json_visitor: boost::static_visitor<std::string> {
-  std::string operator()(const std::nullptr_t& v) const {
+  template<class T>
+  std::string operator()(const T& value) const {
+    return boost::lexical_cast<std::string>(value);
+  }
+
+  std::string operator()(const std::nullptr_t& value) const {
     return "null";
   }
 
-  std::string operator()(const std::string& v) const {
-    return escape_str(v);
+  std::string operator()(const std::string& value) const {
+    return escape_str(value);
   }
 
-  std::string operator()(const int& v) const {
-    return std::to_string(v);
-  }
-
-  std::string operator()(const double& v) const {
-    std::stringstream ss;
-    ss << v;
-    return ss.str();
-  }
-
-  std::string operator()(const bool& v) const {
-    return v ? "true" : "false";
+  std::string operator()(const bool& value) const {
+    return value ? "true" : "false";
   }
 
   std::string operator()(const Map& value) const {
-    std::vector<std::string> out(value.size());
-    std::transform(value.begin(), value.end(), out.begin(),
-        render_map_item<Node, Map, Array>);
-    return "{" + boost::algorithm::join(out, ",") + "}";
+    return "{" + trans_join(value, render_map_item<Node, Map, Array>) + "}";
   }
 
   std::string operator()(const Array& value) const {
-    std::vector<std::string> out(value.size());
-    std::transform(value.begin(), value.end(), out.begin(),
-        stringify<Node, Map, Array>);
-    return "[" + boost::algorithm::join(out, ",") + "]";
+    return "[" + trans_join(value, stringify<Node, Map, Array>) + "]";
   }
 };
 
@@ -103,9 +98,9 @@ Node parse(const std::string& str) {
   Node out;
   details::json_grammar<std::string::const_iterator, Node, Map, Array> json;
   auto first = str.begin(), last = str.end();
-  bool ret = boost::spirit::qi::phrase_parse(
+  bool matched = boost::spirit::qi::phrase_parse(
       first, last, json, boost::spirit::ascii::space, out);
-  return (!ret || first != last) ? Node() : out;
+  return (!matched || first != last) ? Node() : out;
 }
 
 template<class Node = node, class Map = map, class Array = array>
