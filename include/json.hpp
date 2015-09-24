@@ -103,7 +103,7 @@ Node parse(const std::string& str) {
   return (!matched || first != last) ? Node() : out;
 }
 
-template<class Node = node, class Map = map, class Array = array>
+template<class Node, class Map, class Array>
 std::string stringify(const Node& node) {
   return boost::apply_visitor(details::json_visitor<Node, Map, Array>(), node);
 }
