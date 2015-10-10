@@ -70,7 +70,7 @@ struct json_visitor: boost::static_visitor<std::string> {
     return boost::lexical_cast<std::string>(value);
   }
 
-  std::string operator()(const std::nullptr_t& value) const {
+  std::string operator()(const std::nullptr_t&) const {
     return "null";
   }
 
