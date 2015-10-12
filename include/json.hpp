@@ -42,7 +42,8 @@ struct json_grammar: sp::qi::grammar<Iterator, Node(), sp::ascii::space_type> {
                   sp::qi::lit("false")[sp::_val = false] | "null";
     string_rule = sp::lexeme['"' >> *((escaped | sp::qi::char_) - '"') >> '"'];
     object_rule = '{' >> -((string_rule >> ':' >> value_rule) % ',') >> '}';
-    array_rule  = '[' >> -(value_rule % ',') >> ']';
+    const sp::qi::rule<Iterator, Array(), sp::ascii::space_type> rule{'[' >> -(value_rule % ',') >> ']'};
+    array_rule  = rule;
   }
 
   sp::qi::rule<Iterator, Node(),        sp::ascii::space_type> value_rule;
