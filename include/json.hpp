@@ -1,11 +1,5 @@
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/qi_rule.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/variant/recursive_variant.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
@@ -42,8 +36,7 @@ struct json_grammar: sp::qi::grammar<Iterator, Node(), sp::ascii::space_type> {
                   sp::qi::lit("false")[sp::_val = false] | "null";
     string_rule = sp::lexeme['"' >> *((escaped | sp::qi::char_) - '"') >> '"'];
     object_rule = '{' >> -((string_rule >> ':' >> value_rule) % ',') >> '}';
-    const sp::qi::rule<Iterator, Array(), sp::ascii::space_type> rule{'[' >> -(value_rule % ',') >> ']'};
-    array_rule  = rule;
+    array_rule  = '[' >> -(value_rule % ',') >> ']';
   }
 
   sp::qi::rule<Iterator, Node(),        sp::ascii::space_type> value_rule;
